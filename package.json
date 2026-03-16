@@ -1,7 +1,7 @@
 {
   "name": "Arthur_xmd",
   "version": "1.0.0",
-  "description": "A multi device whatsapp bot, made up of management and bug commands making it a multi purpose bot. Made up using unofficial whatsapp API SENKU BAIL based on whiskeysocket bailey",
+  "description": "ARTHUR-XMD: A versatile WhatsApp bot for group management, task automation, and entertainment.",
   "main": "index.js",
   "type": "module",
   "scripts": {
