@@ -1,79 +1,35 @@
+import fs from 'fs';
 
-import configManager from '../utils/manageConfigs.js';
+import path from 'path';
 
-import fs from "fs";
+// Path to config.json
+const configPath = 'config.json';
 
-import fsp from "fs/promises";
+// Load config at startup
+let config = {};
 
-import sender from '../utils/sender.js';
+if (fs.existsSync(configPath)) {
 
-const SESSIONS_FILE = "./sessions.json";
+    config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
 
-const sessions = {};
+} else {
 
-
-function removeSession(number, bot, msg) {
-
-	const chatId = msg.chat.id;
-
-    if (fs.existsSync(SESSIONS_FILE)) {
-
-        let sessionsList = [];
-
-        try {
-
-            const data = JSON.parse(fs.readFileSync(SESSIONS_FILE));
-
-            sessionsList = Array.isArray(data.sessions) ? data.sessions : [];
-
-        } catch (err) {
-
-            sessionsList = [];
-
-            return bot.sendMessage(chatId, `❌ Error reading sessions file: ${err}`, { parse_mode: "Markdown" });
-
-            
-        }
-
-        sessionsList = sessionsList.filter(num => num !== number);
-
-        fs.writeFileSync(SESSIONS_FILE, JSON.stringify({ sessions: sessionsList }, null, 2));
-    }
-
-    const sessionPath = `./sessions/${number}`;
-
-    if (fs.existsSync(sessionPath)) {
-
-        fs.rmSync(sessionPath, { recursive: true, force: true });
-    }
-
-
-    delete sessions[number];
-
-    console.log(`✅ Session for ${number} fully removed.`);
-
-
-    return bot.sendMessage(chatId, "Session deleted sucessfully\n Thanks for using our service\n Hope you enjoyed.", { parse_mode: "Markdown" });
+    config = { users: {} };
 }
 
-export async function disconnect(bot, msg, match) {
+// Auto-save config when modified
+const saveConfig = () => {
 
-    const chatId = msg.chat.id;
+    fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+};
 
-    const text = match?.[1]?.trim();
+// **Direct Access Object**
+export default {
 
-    if (!text) {
+    config,
 
-        return bot.sendMessage(chatId, "❌ Please provide a phone number.\nUsage: `/disconnect <number>`", { parse_mode: "Markdown" });
+    save() {
+
+        saveConfig();
     }
-
-    const targetNumber = text.replace(/\D/g, "");
-
-    console.log("Sanitized number:", targetNumber);
-
-
-    return removeSession(targetNumber, bot, msg);
-
-}
-
-export default disconnect ;
+};
